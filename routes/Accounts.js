@@ -8,17 +8,30 @@ router.get('/', (req, res) => {
 });
 
 
-router.post('/validateregister', async (req, res) => {
-  const { username, email } = req.body;
+router.post('/validate_username', async (req, res) => {
+  const { tmpUsername } = req.body;
   const users = await Users.findAll({});
-  let match=true;
+  let available=true;
   users.forEach(user => {
-      if (user.username === username || user.email === email) {
-          match=false;
+      if (user.username === tmpUsername) {
+        available=false;
       }
   });
   
-  return res.json({success:match});
+  return res.json({available:available});
+});
+
+router.post('/validate_email', async (req, res) => {
+  const { tmpEmail } = req.body;
+  const users = await Users.findAll({});
+  let available=true;
+  users.forEach(user => {
+      if (user.email === tmpEmail) {
+        available=false;
+      }
+  });
+  
+  return res.json({available:available});
 });
 
 
@@ -41,7 +54,7 @@ router.post('/login', async (req, res) => {
     }
 });
   
-  router.post('/Register', async (req, res) => {
+  router.post('/register', async (req, res) => {
     const { email, username, password, dateOfBirth, country, gender } = req.body;
     try {
         await Users.create({
