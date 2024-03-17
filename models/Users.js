@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true
         },
+        bio:{
+            type: DataTypes.STRING, 
+            allowNull: true,
+            defaultValue:'no bio yet'
+          },
         password: {
             type: DataTypes.STRING,
             allowNull: false
@@ -41,10 +46,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         },
         facebooklink: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        snapchatlink: {
             type: DataTypes.STRING,
             allowNull: true
         },

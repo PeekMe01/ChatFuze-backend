@@ -56,5 +56,35 @@ router.get('/friendss/:userid1/:userid2',async(req,res)=>{
     }
 });
 
+router.post('/removefriend', async (req, res) => {
+  try {
+    const { usersid1, usersid2 } = req.body;
+    if (!usersid1 || !usersid2) {
+      return res.json('userId1 and userId2 are required');
+    }
+    await FriendsList.destroy({
+      where: {
+        [Op.or]: [
+          {
+            [Op.and]: [
+              { usersid1: usersid1 },
+              { usersid2: usersid2 }
+            ]
+          },
+          {
+            [Op.and]: [
+              { usersid1: usersid2 },
+              { usersid2: usersid1 }
+            ]
+          }
+        ]
+      }
+    });
+    return res.json('Friendship removed successfully');
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
   
 module.exports=router

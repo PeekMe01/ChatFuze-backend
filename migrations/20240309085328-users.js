@@ -17,6 +17,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      bio:{
+        type: Sequelize.STRING, 
+        allowNull: true,
+      },
       password: {
         type: Sequelize.STRING, 
         allowNull: false,
@@ -43,10 +47,6 @@ module.exports = {
         allowNull: true,
       },
       facebooklink:{
-        type: Sequelize.STRING, 
-        allowNull: true,
-      },
-      snapchatlink:{
         type: Sequelize.STRING, 
         allowNull: true,
       },

@@ -5,6 +5,9 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
+
+
+
 const db = require('./models');
 
 // Routers
@@ -17,7 +20,8 @@ app.use('/leaderboard',leaderboardRouter);
 const messagesRouter=require('./routes/Messages')
 app.use('/messages',messagesRouter);
 
-
+const profilesettingsRouter=require('./routes/ProfileSettings')
+app.use('/settings',profilesettingsRouter);
 
 app.get('/',(req,res)=>{
     return res.send("hello world");
