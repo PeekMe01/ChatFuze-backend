@@ -11,94 +11,104 @@ router.use(session({
     resave: false,
     saveUninitialized: true
 }));
+
+
 router.get('/', (req, res) => {
     res.send("account server");
 });
 
+
 router.post('/validate_username', async (req, res) => {
-  const { tmpUsername } = req.body;
-  const users = await Users.findAll({});
-  let available=true;
-  users.forEach(user => {
-      if (user.username === tmpUsername) {
-        available=false;
-      }
-  });
-  
-  return res.json({available:available});
+  try {
+    const { tmpUsername } = req.body;
+    if (typeof tmpUsername != 'string' ) {
+      return res.status(400).json({ error: "Invalid username format." });
+    }
+    const existingUser = await Users.findOne({ where: { username: tmpUsername } });
+    const available = !existingUser;
+    return res.json({ available });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
+
 router.post('/validate_email', async (req, res) => {
-  const { tmpEmail } = req.body;
-  const users = await Users.findAll({});
-  let available=true;
-  users.forEach(user => {
-      if (user.email === tmpEmail) {
-        available=false;
-      }
-  });
-  
-  return res.json({available:available});
+  try {
+    const { tmpEmail } = req.body;
+    const existingUser = await Users.findOne({ where: { email: tmpEmail } });
+    const available = !existingUser;
+    return res.json({ available });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
 
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await Users.findOne({ where: { email } });
-        if (!user) {
-            return res.status(404).json({ error: "User doesn't exist" });
-        }
-        if (password===user.password) {
-          req.session.user =user;
-            return res.json({ message: 'Login successful' });
-        }
-        return res.status(401).json({ error: 'Wrong password' });
-    } catch (error) {
-        console.error('Login error:', error);
+            const { email, password } = req.body;
+            if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
+              return res.status(400).json({ error: "Invalid email or password" });
+            }
+            const user = await Users.findOne({ where: { email } });
+            if (!user) {
+                return res.status(404).json({ error: "User doesn't exist" });
+            }
+            if (password===user.password) {
+                req.session.user =user;
+                return res.json({ message: 'Login successful' });
+            }
+            else {
+              return res.status(401).json({ error: 'Wrong password' });
+          }
+      } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 
-
-
-
-
-
-  router.post('/Register', async (req, res) => {
-    const { email, username, password, dateOfBirth, country, gender } = req.body;
+router.post('/register', async (req, res) => {
+  const { email, username, password, dateOfBirth, country, gender } = req.body;
+  if (!email || !username || !password || !dateOfBirth || !country || !gender) {
+      return res.status(400).json({ error: "All fields are required" });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password should be at least 8 characters long' });
+}
     try {
-      await Users.create({
-        email:email,
-        username: username,
-        password: password,
-        dateOfBirth: dateOfBirth,
-        country:country,
-        gender:gender
-      });
-      res.json("success");
-     
+        await Users.create({
+            email,
+            username,
+            password,
+            dateOfBirth,
+            country,
+            gender
+        });
+        return res.json("success");
     } catch (error) {
-      res.status(511).json({ error: "Failed to create user" });
+        return res.status(500).json({ error: "Failed to create user" });
     }
-  });
+});
 
 
   function generateOTP() {
     const otpLength = 6;
     return Math.floor(100000 + Math.random() * 900000).toString().substr(0, otpLength);
   }
+
+
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'antoinekamel0@gmail.com', // Your Gmail email address
-        pass: 'zxhj sjbh nhuw waau' // Your Gmail password // Kifak Jawad
+        user: 'antoinekamel0@gmail.com',
+        pass: 'zxhj sjbh nhuw waau' 
     }
   });
+
+
   router.post('/sendOTP', async (req, res) => {
     const { email } = req.body;
-
     try {
         const otp = generateOTP();
         const mailOptions = {
@@ -108,17 +118,18 @@ router.post('/login', async (req, res) => {
             text: `Your OTP is: ${otp}`
         };
         await transporter.sendMail(mailOptions);
-        console.log('sending otp...')
         res.json({ otp: otp, message: 'OTP sent successfully' });
     } catch (error) {
-        console.error('Error sending OTP:', error);
         res.status(500).json({ error: 'Failed to send OTP' });
     }
 });
 
+
 function generateUniqueToken() {
   return crypto.randomBytes(20).toString('hex');
 }
+
+
 async function sendResetPasswordEmail(email, token) {
   const mailOptions = {
     from: 'antoinekamel0@gmail.com',
@@ -128,9 +139,14 @@ async function sendResetPasswordEmail(email, token) {
   };
   await transporter.sendMail(mailOptions);
 }
+
+
 router.post('/resetpassword', async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+  }
     const user = await Users.findOne({ where: { email : email} });
     if (!user) {
       return res.status(500).json({ error: 'User not found' });
@@ -143,19 +159,22 @@ router.post('/resetpassword', async (req, res) => {
       return res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
 });
+
+
 router.post('/resetpassword/:token', async (req, res) => {
   try {
     const { token } = req.params;
     const { password, confirmPassword } = req.body;
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password should be at least 8 characters long' });
+  }
     if (password != confirmPassword) {
       return res.status(404).json( {error: 'The password and confirm password do not match'});
     }
     const resetPasswordRecord = await ResetPassword.findOne({ where: { token:token } });
-    console.log(resetPasswordRecord)
     if (resetPasswordRecord==null) {
       return res.status(404).json({ error: 'Invalid or expired token'});
     }
-
     const affectedRows = await Users.update(
       { password: password },
       { where: { email: resetPasswordRecord.email } }
@@ -170,5 +189,6 @@ router.post('/resetpassword/:token', async (req, res) => {
     return res.status(500)({error: 'Internal server error'});
   }
 });  
+
 
 module.exports=router

@@ -2,9 +2,12 @@ const express = require('express')
 const {FriendsList,Users,Messages}=require('../models');
 const { Op } = require('sequelize');
 const router=express.Router()
+
+
 router.get('/', (req, res) => {
     res.send("Messages server");
 });
+
 
 router.get('/friends/:id', async (req, res) => {
     const { id } = req.params;
@@ -28,6 +31,7 @@ router.get('/friends/:id', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 router.get('/friendss/:userid1/:userid2',async(req,res)=>{
     const {userid1,userid2}=req.params;
@@ -56,13 +60,14 @@ router.get('/friendss/:userid1/:userid2',async(req,res)=>{
     }
 });
 
+
 router.post('/removefriend', async (req, res) => {
   try {
     const { usersid1, usersid2 } = req.body;
     if (!usersid1 || !usersid2) {
       return res.json('userId1 and userId2 are required');
     }
-    await FriendsList.destroy({
+    const rowsAffected = await FriendsList.destroy({
       where: {
         [Op.or]: [
           {
@@ -80,6 +85,9 @@ router.post('/removefriend', async (req, res) => {
         ]
       }
     });
+    if (rowsAffected === 0) {
+      return res.json('No friendship found to remove');
+    }
     return res.json('Friendship removed successfully');
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
