@@ -72,19 +72,19 @@ router.post('/changepassword', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         if (oldpassword !== user.password) {
-            return res.status(401).json({ error: 'Invalid old password' });
+            return res.status(401).json({ error: 'Current password is incorrect!' });
         }
         if (typeof password !== 'string' || password.length < 8) {
-            return res.status(400).json({ error: 'Password should be a string of at least 8 characters' });
+            return res.status(400).json({ error: 'Password is too short!' });
         }
         const [numAffectedRows] = await Users.update(
             { password: password },
             { where: { idusers: userid } }
         );
         if (numAffectedRows === 1) {
-            return res.json('Password updated successfully');
+            return res.status(200).json({ message: 'Password updated successfully'});
         } else {
-            return res.json('Password not updated');
+            return res.status(402).json( {error: 'Password not updated'});
         }
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
