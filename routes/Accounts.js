@@ -6,6 +6,9 @@ const router=express.Router()
 const session = require('express-session');
 const crypto = require('crypto');
 
+// const API_URL = '192.168.1.30:3001';
+const API_URL = '192.168.148.161:3000';
+
 router.use(session({
     secret: 'secret', 
     resave: false,
@@ -139,7 +142,7 @@ async function sendResetPasswordEmail(email, token) {
     from: 'ralphdaher6@gmail.com',
     to: email,
     subject: 'Reset Your Password',
-    text: `Click the following link to reset your password: http://192.168.148.161:3000/resetpassword/${token}`
+    text: `Click the following link to reset your password: http://${API_URL}/resetpassword/${token}`
   };
   try {
     await transporter.sendMail(mailOptions);
