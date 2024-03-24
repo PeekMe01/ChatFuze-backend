@@ -6,6 +6,9 @@ const router=express.Router()
 const session = require('express-session');
 const crypto = require('crypto');
 
+// const API_URL = '192.168.1.30:3001';
+const API_URL = '192.168.148.161:3000';
+
 router.use(session({
     secret: 'secret', 
     resave: false,
@@ -101,8 +104,11 @@ router.post('/register', async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'antoinekamel0@gmail.com',
-        pass: 'zxhj sjbh nhuw waau' 
+        user: 'ralphdaher6@gmail.com', // Your Gmail email address
+        pass: 'bxgo qxdn rwts jwdb' // Your Gmail password
+    },
+    tls: {
+      rejectUnauthorized: false
     }
   });
 
@@ -112,12 +118,13 @@ router.post('/register', async (req, res) => {
     try {
         const otp = generateOTP();
         const mailOptions = {
-            from: 'antoinekamel0@gmail.com',
+            from: 'ralphdaher6@gmail.com',
             to: email,
             subject: 'Your OTP for registration',
             text: `Your OTP is: ${otp}`
         };
         await transporter.sendMail(mailOptions);
+        // console.log(otp)
         res.json({ otp: otp, message: 'OTP sent successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to send OTP' });
@@ -132,12 +139,17 @@ function generateUniqueToken() {
 
 async function sendResetPasswordEmail(email, token) {
   const mailOptions = {
-    from: 'antoinekamel0@gmail.com',
+    from: 'ralphdaher6@gmail.com',
     to: email,
     subject: 'Reset Your Password',
-    text: `Click the following link to reset your password: http://192.168.0.102:3000/resetpassword/${token}`
+    text: `Click the following link to reset your password: http://${API_URL}/resetpassword/${token}`
   };
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw error;
+  }
+  
 }
 
 
@@ -153,10 +165,13 @@ router.post('/resetpassword', async (req, res) => {
     }
     const token = generateUniqueToken();
     await ResetPassword.create({email: email,token: token, userid: user.idusers });
+    console.log('here')
     await sendResetPasswordEmail(email, token);
+    // console.log(`http://192.168.148.161:3000/resetpassword/${token}`)
     return res.status(200).json({message: 'Reset password email sent successfully' });
   } catch (error) {
-      return res.status(500).json({ error: 'Internal server error: ' + error.message });
+      console.log(error)
+      return res.status(501).json({ error: 'Internal server error: ' + error.message });
     }
 });
 
