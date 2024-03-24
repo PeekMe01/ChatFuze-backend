@@ -55,6 +55,11 @@ module.exports = {
         allowNull: true,
         defaultValue: false 
       },
+      active:{
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: true 
+      },
       rankid:{
         type: Sequelize.INTEGER,
         allowNull: false,

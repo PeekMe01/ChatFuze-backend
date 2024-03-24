@@ -3,17 +3,12 @@ const express = require('express')
 const nodemailer = require('nodemailer');
 const {Users,ResetPassword}=require('../models');
 const router=express.Router()
-const session = require('express-session');
 const crypto = require('crypto');
-
+const jwt = require('jsonwebtoken');
 // const API_URL = '192.168.1.30:3001';
 const API_URL = '192.168.148.161:3000';
 
-router.use(session({
-    secret: 'secret', 
-    resave: false,
-    saveUninitialized: true
-}));
+
 
 
 router.get('/', (req, res) => {
@@ -59,8 +54,10 @@ router.post('/login', async (req, res) => {
                 return res.status(404).json({ error: "User doesn't exist" });
             }
             if (password===user.password) {
-                req.session.user =user;
-                return res.json({ message: 'Login successful' });
+				let id=user.idusers;
+				let username=user.username;
+				const token = jwt.sign({ username }, 'your_secret_key');
+                return res.json({ message: 'Login successful',token,id });
             }
             else {
               return res.status(401).json({ error: 'Wrong password' });

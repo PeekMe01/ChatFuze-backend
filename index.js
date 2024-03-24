@@ -5,10 +5,23 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
-
-
-
 const db = require('./models');
+
+const expoAppIdentifier = "chatfuze-frontend";
+const restrictAccess = (req, res, next) => {
+  const requestIdentifier = req.headers['x-expo-app'];
+
+  if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
+    next();
+  } else {
+    res.status(403).send('Access Forbidden');
+  }
+};
+
+app.use(restrictAccess);
+
+
+
 
 // Routers
 const accountsRouter=require('./routes/Accounts')
@@ -31,3 +44,35 @@ db.sequelize.sync().then(() => {
         console.log("Server running on port 3001.");
     });
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/*
+const jwt = require('jsonwebtoken');
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if (username === 'user' && password === 'pass') {
+    const token = jwt.sign({ username }, 'your_secret_key');
+	let id=1;
+
+    res.json({ token,id });
+  } else {
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
+});*/
+
+// function verifyToken(req, res, next) {
+ // const token = req.headers['authorization'];
+ // if (typeof token !== 'undefined') {
+   // jwt.verify(token, 'your_secret_key', (err, authData) => {
+     // if (err) {
+      //  res.status(403).json({ error: 'Forbidden' });
+     // } else {
+      //  req.authData = authData;
+     //   next();
+    //  }
+   // });
+  //} else {
+  //  res.status(403).json({ error: 'Forbidden' });
+ // }
+//}

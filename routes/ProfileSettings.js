@@ -1,5 +1,5 @@
 const express = require('express')
-const {FriendsList,Users,Rooms,Ranks}=require('../models');
+const {FriendsList,Users,Rooms,Ranks,Feedbacks}=require('../models');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 const router=express.Router()
@@ -108,7 +108,25 @@ router.post('/updatebio', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-
+router.post('/sendfeedback', async (req, res) => {
+    const { userid, message } = req.body;
+    if (!message) {
+        return res.status(400).json({ error: 'Message cannot be null or empty' });
+    }
+    try {
+        const feedback = await Feedbacks.create({
+            userdid:userid,
+            message:message,
+        });
+        if(feedback)
+        return res.json({ message: 'Feedback sent successfully' });
+    else
+    return res.json({ message: 'feedback not sent successfully' });
+    } catch (error) {
+        console.error('Error creating feedback:', error); 
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
     router.get('/getinsight/:idusers',async(req,res)=>{
         const {idusers}=req.params;
