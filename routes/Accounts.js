@@ -54,9 +54,9 @@ router.post('/login', async (req, res) => {
                 return res.status(404).json({ error: "User doesn't exist" });
             }
             if (password===user.password) {
-				let id=user.idusers;
-				let username=user.username;
-				const token = jwt.sign({ username }, 'your_secret_key');
+                let id=user.idusers;
+                let username=user.username;
+                const token = jwt.sign({ username }, 'your_secret_key');
                 return res.json({ message: 'Login successful',token,id });
             }
             else {
@@ -77,7 +77,7 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Password should be at least 8 characters long' });
 }
     try {
-        await Users.create({
+        const user = await Users.create({
             email,
             username,
             password,
@@ -85,7 +85,10 @@ router.post('/register', async (req, res) => {
             country,
             gender
         });
-        return res.json("success");
+        let id=user.idusers;
+        let username=user.username;
+        const token = jwt.sign({ username }, 'your_secret_key', { expiresIn: '24h' });
+        return res.status(200).json({ message: 'success',token,id });
     } catch (error) {
         return res.status(500).json({ error: "Failed to create user" });
     }

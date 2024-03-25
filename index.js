@@ -7,7 +7,7 @@ app.use(cors());
 
 const db = require('./models');
 
-/*const expoAppIdentifier = "chatfuze-frontend";
+const expoAppIdentifier = "chatfuze-frontend";
 const restrictAccess = (req, res, next) => {
   const requestIdentifier = req.headers['x-expo-app'];
 
@@ -18,7 +18,7 @@ const restrictAccess = (req, res, next) => {
   }
 };
 
-app.use(restrictAccess);*/
+app.use(restrictAccess);
 
 
 

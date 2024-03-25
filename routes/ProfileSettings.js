@@ -10,8 +10,8 @@ router.get('/', (req, res) => {
   
 
 router.post('/updateusername', async (req, res) => {
-    const { userid, oldusername, username } = req.body;
-    if (!userid || !username || !oldusername) {
+    const { userid, username } = req.body;
+    if (!userid || !username ) {
         return res.status(400).json({ error: 'User ID, old username, and new username are required' });
     }
     try {
@@ -19,9 +19,9 @@ router.post('/updateusername', async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        if (oldusername !== user.username) {
-            return res.status(401).json({ error: 'Invalid old username' });
-        }
+        // if (oldusername !== user.username) {
+        //     return res.status(401).json({ error: 'Invalid old username' });
+        // }
         const existingUser = await Users.findOne({ where: { username } });
         if (existingUser) {
             return res.status(409).json({ error: 'Username is already taken' });
@@ -31,9 +31,9 @@ router.post('/updateusername', async (req, res) => {
             { where: { idusers: userid } }
         );
         if (numAffectedRows === 1) {
-            return res.json('Username updated successfully');
+            return res.status(200).json('Username updated successfully');
         } else {
-            return res.json('Username not updated');
+            return res.status(410).json('Username not updated');
         }
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
@@ -172,7 +172,7 @@ router.post('/sendfeedback', async (req, res) => {
                 leaderboardnumber++;
             }
         }
-        return res.json({ roomCount, friendsCount, leaderboardnumber,rankname,user});
+        return res.status(200).json({ roomCount, friendsCount, leaderboardnumber,rankname,user});
     }catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }
