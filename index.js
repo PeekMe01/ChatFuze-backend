@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require("cors");
+const path = require('path');
 
 app.use(express.json());
 app.use(cors());
@@ -20,7 +21,8 @@ const restrictAccess = (req, res, next) => {
 
 app.use(restrictAccess);
 
-
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // Routers

@@ -1,15 +1,35 @@
 const express = require('express')
 //const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-const {Users,ResetPassword}=require('../models');
+const {Users,ResetPassword,VerificationRequest}=require('../models');
 const router=express.Router()
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 // const API_URL = '192.168.1.30:3001';
-const API_URL = '192.168.148.161:3000';
+const API_URL = '192.168.64.161:3000';
+const multiparty = require('multiparty');
+const path = require('path');
+const fs = require('fs');
 
+//file uploads
+const multer = require('multer');
 
+// Multer configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Save uploaded files to 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Use the original filename
+  }
+});
 
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // Limit file size to 10MB (adjust as needed)
+  }
+});
 
 router.get('/', (req, res) => {
     res.send("account server");
@@ -67,10 +87,57 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/idphoto', upload.single('image'), async (req, res) => {
+  // console.log(req)
+  // let form = new multiparty.Form();
 
-router.post('/register', async (req, res) => {
+  // form.parse(req, function(err, fields, files) {
+  //    Object.keys(fields).forEach(function(name) {
+  //         console.log('got field named ' + name);
+  //     });
+  // });
+
+  console.log(req.body)
+
+
+  return res.status(509).json({ message: 'success' });
+})
+
+router.post('/verify_user', async (req, res) => {
+  const { idverificationrequests, imagepath, userid, accepted } = req.body;
+    try {
+      const [numAffectedRows] = await Users.update(
+          { verified: accepted },
+          { where: { idusers: userid } }
+      );
+      if (numAffectedRows === 1) {
+
+        const filePath = path.join("uploads", imagepath);
+        fs.unlinkSync(filePath);
+        // Find the user by ID
+        const verificationRequest = await VerificationRequest.findByPk(idverificationrequests);
+
+        if (!verificationRequest) {
+          return res.status(404).send('User not found');
+        }
+        // Delete the user
+        await verificationRequest.destroy();
+
+        return res.json('User has been updated.');
+      } else {
+        return res.json('User has not been updated.');
+      }
+  } catch (error) {
+      console.log(error)
+      return res.status(500).json({ error: 'Internal server error' });
+  }
+  
+})
+
+router.post('/register', upload.single('image'), async (req, res) => {
   const { email, username, password, dateOfBirth, country, gender } = req.body;
   if (!email || !username || !password || !dateOfBirth || !country || !gender) {
+    console.log(req.body)
       return res.status(400).json({ error: "All fields are required" });
   }
   if (password.length < 8) {
@@ -86,10 +153,19 @@ router.post('/register', async (req, res) => {
             gender
         });
         let id=user.idusers;
-        let username=user.username;
-        const token = jwt.sign({ username }, 'your_secret_key', { expiresIn: '24h' });
+        let username1=user.username;
+        const token = jwt.sign({ username1 }, 'your_secret_key', { expiresIn: '24h' });
+
+        const imagepath = req.file.filename;
+        const userid = id;
+        const verificationRequest = await VerificationRequest.create({
+          imagepath,
+          userid
+        });
+
         return res.status(200).json({ message: 'success',token,id });
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: "Failed to create user" });
     }
 });
