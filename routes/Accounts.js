@@ -117,6 +117,16 @@ router.post('/verify_user', async (req, res) => {
         // Find the user by ID
         const verificationRequest = await VerificationRequest.findByPk(idverificationrequests);
 
+        const user = await Users.findOne({ where: { idusers: userid } });
+
+        const mailOptions = {
+          from: 'ralphdaher6@gmail.com',
+          to: user.email,
+          subject: 'ID Verification',
+          text: accepted?`Your account has been succesfully verified!`:`Your account was sadly not verified due to conflits in your id and the info you provided when creating your account.`
+        };
+        await transporter.sendMail(mailOptions);
+
         if (!verificationRequest) {
           return res.status(404).send('User not found');
         }
