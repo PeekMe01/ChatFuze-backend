@@ -1,7 +1,7 @@
 const express = require('express')
 //const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-const {Users,ResetPassword,VerificationRequest}=require('../models');
+const {Users,ResetPassword,VerificationRequest,Rooms,sequelize }=require('../models');
 const router=express.Router()
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -86,22 +86,41 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+router.get('/totalrooms', async (req, res) => {
+  try {
+    const totalRooms = await Rooms.count();
 
-router.post('/idphoto', upload.single('image'), async (req, res) => {
-  // console.log(req)
-  // let form = new multiparty.Form();
-
-  // form.parse(req, function(err, fields, files) {
-  //    Object.keys(fields).forEach(function(name) {
-  //         console.log('got field named ' + name);
-  //     });
-  // });
-
-  console.log(req.body)
-
-
-  return res.status(509).json({ message: 'success' });
-})
+    return res.json(totalRooms );
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+router.get('/getNonVerifiedUsers', async (req, res) => {
+  try {
+    const users = await Users.findAll({ where: { verified: false } });
+	
+    return res.json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+router.get('/getProbablyVerifiedUsers', async (req, res) => {
+  try {
+    const users = await sequelize.query(
+    `SELECT verificationrequests.*, users.idusers, users.email, users.username, users.dateOfBirth, users.country, users.gender
+     FROM verificationrequests, users
+     WHERE verificationrequests.userid = users.idusers
+     AND users.verified = false;`,
+    { type: sequelize.QueryTypes.SELECT }
+  );
+    return res.json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 router.post('/verify_user', async (req, res) => {
   const { idverificationrequests, imagepath, userid, accepted } = req.body;

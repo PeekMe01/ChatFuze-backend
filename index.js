@@ -38,6 +38,11 @@ app.use('/messages',messagesRouter);
 const profilesettingsRouter=require('./routes/ProfileSettings')
 app.use('/settings',profilesettingsRouter);
 
+const feedbacksRouter=require('./routes/Feedbacks')
+app.use('/feedbacks',feedbacksRouter);
+const reportsRouter=require('./routes/Reports')
+app.use('/reports',reportsRouter);
+
 app.get('/',(req,res)=>{
     return res.send("hello world");
 })
