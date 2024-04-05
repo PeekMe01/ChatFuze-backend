@@ -60,6 +60,10 @@ module.exports = {
         allowNull: true,
         defaultValue: true 
       },
+      imageurl:{
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       rankid:{
         type: Sequelize.INTEGER,
         allowNull: false,
