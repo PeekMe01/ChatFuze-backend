@@ -1,5 +1,5 @@
 const express = require('express')
-const {Users,Reports,sequelize }=require('../models');
+const {Users,Reports,ReportCategory,sequelize }=require('../models');
 const router=express.Router()
 
 router.get('/', (req, res) => {
@@ -51,6 +51,41 @@ router.post('/deletereport', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.post('/submitreport', async (req, res) => {
+	
+  try {
+    const { reportedid, reporterid, message, categoryname } = req.body;
+    if (!reportedid || !reporterid || !message || !categoryname) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    const reportCategory = await ReportCategory.findOne({
+      where: {
+        categoryname: categoryname
+      }
+    });
+    if (!reportCategory) {
+      return res.status(404).json({ error: 'Report category not found' });
+    }
+    const newReport = await Reports.create({
+      message: message,
+      reportcategorieid: reportCategory.idreportcategories,
+      reporterid: reporterid,
+      reportedid: reportedid
+    });
+    if (!newReport) {
+      return res.status(500).json({ error: 'Failed to create report' });
+    }
+    return res.status(201).json({ message: 'Report added successfully', report: newReport });
+  } catch (error) {
+    console.error('Error submitting report:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+ 
+});
+
+
+
 
 
 module.exports=router
