@@ -200,20 +200,47 @@ router.post('/sendfeedback', async (req, res) => {
     
     
 
-    // router.post('/facebooklink', async (req, res) => {
-    //     const { idusers, facebooklink } = req.body;
-    //     const facebookRegex = /^(?:https?:\/\/)?(?:www\.)?facebook\.com\/[a-zA-Z0-9_\.]+\/?$/;
-    //     const isValidFacebookLink = facebookRegex.test(facebooklink);
-    //     if (isValidFacebookLink) {
-    //          await Users.update(
-    //             { facebooklink: facebooklink },
-    //             { where: { idusers: idusers } }
-    //         );
-    //         return res.json("Facebook link Updated");
-    //     } else {
-    //         return res.json("Not a valid Facebook link");
-    //     }
-    // });
+    router.post('/facebooklink', async (req, res) => {
+        const { facebooklink, userid } = req.body;
+        if(!userid || !facebooklink){
+            return res.status(400).json({ error: 'Facebook link cannot be null or empty' });
+        }
+
+        try {
+            const [numAffectedRows] = await Users.update(
+                { facebooklink: facebooklink },
+                { where: { idusers: userid } }
+            );
+            if (numAffectedRows === 1) {
+                return res.status(200).json('Facebook link updated successfully');
+            } else {
+                return res.status(405).json('Facebook link not updated');
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+
+    router.post('/removeFacebookLink', async (req, res) => {
+        const {userid} = req.body;
+        if(!userid){
+            return res.status(400).json({ error: 'userid cannot be null or empty' });
+        }
+
+        try {
+            const [numAffectedRows] = await Users.update(
+                { facebooklink: null },
+                { where: { idusers: userid } }
+            );
+            if (numAffectedRows === 1) {
+                return res.status(200).json('Facebook link updated successfully');
+            } else {
+                return res.status(405).json('Facebook link not updated');
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    })
 
   
 module.exports=router
