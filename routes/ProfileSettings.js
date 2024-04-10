@@ -201,14 +201,15 @@ router.post('/sendfeedback', async (req, res) => {
     
 
     router.post('/facebooklink', async (req, res) => {
-        const { facebooklink, userid } = req.body;
-        if(!userid || !facebooklink){
-            return res.status(400).json({ error: 'Facebook link cannot be null or empty' });
+        const { facebooklink, imageurl ,userid } = req.body;
+        console.log(req.body)
+        if(!userid || !facebooklink || !imageurl){
+            return res.status(400).json({ error: 'Facebook link or image cannot be null or empty' });
         }
 
         try {
             const [numAffectedRows] = await Users.update(
-                { facebooklink: facebooklink },
+                { facebooklink: facebooklink, imageurl: imageurl },
                 { where: { idusers: userid } }
             );
             if (numAffectedRows === 1) {
@@ -229,7 +230,7 @@ router.post('/sendfeedback', async (req, res) => {
 
         try {
             const [numAffectedRows] = await Users.update(
-                { facebooklink: null },
+                { facebooklink: null, imageurl: null },
                 { where: { idusers: userid } }
             );
             if (numAffectedRows === 1) {
