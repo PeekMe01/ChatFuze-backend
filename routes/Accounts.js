@@ -13,6 +13,7 @@ const fs = require('fs');
 
 //file uploads
 const multer = require('multer');
+const { where } = require('sequelize');
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -121,6 +122,53 @@ router.get('/getProbablyVerifiedUsers', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.post('/checkIdVerification', async (req, res) => {
+  const { userid } = req.body;
+  try {
+    if(!userid){
+      return res.status(405).send('All fields are required');
+    }
+    const IDVerificationRequest = await VerificationRequest.findOne({where: {userid: userid}})
+
+    const user = await Users.findOne({where: {idusers: userid}})
+    
+    if(IDVerificationRequest){
+      console.log(IDVerificationRequest)
+      return res.status(200).json({ hasIDVerificationRequest: true, userAlreadyVerified: user.verified });
+    }else{
+      return res.status(200).json({ hasIDVerificationRequest: false, userAlreadyVerified: user.verified});
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+})
+
+router.post('/applyForIDVerification', upload.single('image'), async (req, res) => {
+  const {userid} = req.body;
+  try {
+    if(!userid){
+      return res.status(405).send('All fields are required');
+    }
+
+    const imagepath = req.file.filename;
+    const verificationRequest = await VerificationRequest.create({
+      imagepath,
+      userid
+    });
+
+    if(verificationRequest){
+      return res.status(200).json({ message: 'ID verification request created successfully' });
+    }else{
+      return res.status(400).json({ error: 'Failed to create an ID verification request' });
+    }
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+})
 
 router.post('/verify_user', async (req, res) => {
   const { idverificationrequests, imagepath, userid, accepted } = req.body;
