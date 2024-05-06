@@ -70,7 +70,8 @@ router.post('/login', async (req, res) => {
             if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
               return res.status(400).json({ error: "Invalid email or password" });
             }
-            const user = await Users.findOne({ where: { email } });
+            tmpEmail = email.toLowerCase()
+            const user = await Users.findOne({ where: { email: tmpEmail } });
             if (!user) {
                 return res.status(404).json({ error: "User doesn't exist" });
             }
@@ -84,6 +85,7 @@ router.post('/login', async (req, res) => {
               return res.status(401).json({ error: 'Wrong password' });
           }
       } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -222,7 +224,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
 }
     try {
         const user = await Users.create({
-            email,
+            email: email.toLowerCase(),
             username,
             password,
             dateOfBirth,
@@ -272,7 +274,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
         const otp = generateOTP();
         const mailOptions = {
             from: 'ralphdaher6@gmail.com',
-            to: email,
+            to: email.toLowerCase(),
             subject: 'Your OTP for registration',
             text: `Your OTP is: ${otp}`
         };
