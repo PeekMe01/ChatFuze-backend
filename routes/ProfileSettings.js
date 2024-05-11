@@ -3,7 +3,15 @@ const {FriendsList,Users,Rooms,Ranks,Feedbacks}=require('../models');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 const router=express.Router()
+const Pusher = require("pusher");
 
+const pusher = new Pusher({
+  appId: "1786765",
+  key: "f55dcf58564041046663",
+  secret: "9e76c59f41bd4199f4de",
+  cluster: "ap2",
+  useTLS: true
+});
 router.get('/', (req, res) => {
     res.send("settings server");
 });
@@ -242,6 +250,47 @@ router.post('/sendfeedback', async (req, res) => {
             return res.status(500).json({ error: 'Internal server error' });
         }
     })
+
+
+
+//////
+router.put('/updateStatus/:userId/:active', async (req, res) => {
+  let { userId, active } = req.params;
+  
+  // Convert userId to integer
+  userId = parseInt(userId);
+
+  if (isNaN(userId) || !active) {
+    return res.status(400).json({ error: 'Invalid user ID or status' });
+  }
+
+  try {
+    const [numAffectedRows] = await Users.update(
+      { active: active },
+      { where: { idusers: userId } }
+    );
+
+    if (numAffectedRows === 1) {
+		pusher.trigger("my-channel", "my-event", {
+		  userId:userId,
+		  active:active
+		});
+		
+      return res.json('Status updated successfully');
+	  
+    } else {
+      return res.json('Status not updated');
+    }
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    return res.status(500).json('Internal server error');
+  }
+});
+
+
+
+
+
 
   
 module.exports=router
