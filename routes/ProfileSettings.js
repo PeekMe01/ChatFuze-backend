@@ -153,6 +153,33 @@ router.post('/sendfeedback', async (req, res) => {
             }
           })
           let rankname=rank.rankname;
+		  
+		  let ranknamepoints=await Ranks.findOne({
+            where: {
+             rankname:rankname
+            }
+          })
+		 
+		   const usersbyrankpoints = await Users.findAll({
+					where: {
+						rankpoints: {
+										[Op.and]: [
+										{ [Op.gte]: ranknamepoints.minimumpoints }, 
+										{ [Op.lte]: ranknamepoints.maximumpoints } 
+										]
+									}
+							},
+					order: [['rankpoints', 'DESC']] 
+					});
+		  let userrankk=1;
+		  for(let user of usersbyrankpoints){
+			   if (user.idusers == idusers) {
+                break;
+            } else {
+                userrankk++;
+            }
+		  }
+		  /////////////////////////////
         const roomCount = await Rooms.count({
             where: {
                 [Op.or]: [
@@ -172,6 +199,18 @@ router.post('/sendfeedback', async (req, res) => {
         const users = await Users.findAll({
             order: [['rankpoints', 'DESC']]
         });
+		let usersRoomCounts=[];
+		for(let i=0;i<users.length;i++){
+			usersRoomCounts[i]=await Rooms.count({
+            where: {
+                [Op.or]: [
+                    { userdid1: users[i].idusers },
+                    { userdid2:  users[i].idusers }
+                ]
+            }
+        });
+		}
+		const maxRoomCountPerUser = Math.max(...usersRoomCounts);
         let leaderboardnumber = 1;
         for (let user of users) {
             if (user.idusers == idusers) {
@@ -180,7 +219,7 @@ router.post('/sendfeedback', async (req, res) => {
                 leaderboardnumber++;
             }
         }
-        return res.status(200).json({ roomCount, friendsCount, leaderboardnumber,rankname,user});
+        return res.status(200).json({ roomCount, friendsCount, leaderboardnumber,rankname,user,users,maxRoomCountPerUser,userrankk,usersbyrankpoints});
     }catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }
