@@ -327,6 +327,29 @@ router.put('/updateStatus/:userId/:active', async (req, res) => {
 });
 
 
+router.put('/updateProfilePicture', async (req,res) => {
+    const {userid, profileURL} = req.body;
+    console.log(req.body)
+        if(!userid, !profileURL){
+            return res.status(400).json({ error: 'userid cannot be null or empty' });
+        }
+        try {
+            const [numAffectedRows] = await Users.update(
+                { imageurl: profileURL },
+                { where: { idusers: userid } }
+            );
+            if (numAffectedRows === 1) {
+                return res.status(200).json('Profile picture updated successfully');
+            } else {
+                return res.status(405).json('Profile picture not updated');
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+})
+
+
 
 
 

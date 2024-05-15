@@ -6,7 +6,7 @@ const router=express.Router()
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 // const API_URL = '192.168.1.30:3001';
-const API_URL = '192.168.64.161:3000';
+const API_URL = '192.168.0.102:3000';
 const multiparty = require('multiparty');
 const path = require('path');
 const fs = require('fs');
@@ -235,6 +235,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
         let username1=user.username;
         const token = jwt.sign({ username1 }, 'your_secret_key', { expiresIn: '24h' });
 
+        console.log(req.body)
         const imagepath = req.file.filename;
         const userid = id;
         const verificationRequest = await VerificationRequest.create({
