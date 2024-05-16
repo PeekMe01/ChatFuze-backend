@@ -211,9 +211,9 @@ router.post('/verify_user', async (req, res) => {
   
 })
 
-router.post('/register', upload.single('image'), async (req, res) => {
-  const { email, username, password, dateOfBirth, country, gender } = req.body;
-  if (!email || !username || !password || !dateOfBirth || !country || !gender) {
+router.post('/register', async (req, res) => {
+  const { imageURL, email, username, password, dateOfBirth, country, gender } = req.body;
+  if (!imageURL|| !email || !username || !password || !dateOfBirth || !country || !gender) {
     console.log(req.body)
       return res.status(400).json({ error: "All fields are required" });
   }
@@ -234,10 +234,10 @@ router.post('/register', upload.single('image'), async (req, res) => {
         const token = jwt.sign({ username1 }, 'your_secret_key', { expiresIn: '24h' });
 
         console.log(req.body)
-        const imagepath = req.file.filename;
+        // const imagepath = req.file.filename;
         const userid = id;
         const verificationRequest = await VerificationRequest.create({
-          imagepath,
+          imagepath: imageURL,
           userid
         });
 
