@@ -147,16 +147,14 @@ router.post('/checkIdVerification', async (req, res) => {
   }
 })
 
-router.post('/applyForIDVerification', upload.single('image'), async (req, res) => {
-  const {userid} = req.body;
+router.post('/applyForIDVerification', async (req, res) => {
+  const {userid, imageURL} = req.body;
   try {
-    if(!userid){
+    if(!userid, !imageURL){
       return res.status(405).send('All fields are required');
     }
-
-    const imagepath = req.file.filename;
     const verificationRequest = await VerificationRequest.create({
-      imagepath,
+      imagepath: imageURL,
       userid
     });
 
@@ -181,8 +179,8 @@ router.post('/verify_user', async (req, res) => {
       );
       if (numAffectedRows === 1) {
 
-        const filePath = path.join("uploads", imagepath);
-        fs.unlinkSync(filePath);
+        // const filePath = path.join("uploads", imagepath);
+        // fs.unlinkSync(filePath);
         // Find the user by ID
         const verificationRequest = await VerificationRequest.findByPk(idverificationrequests);
 
