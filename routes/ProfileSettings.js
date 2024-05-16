@@ -1,5 +1,6 @@
 const express = require('express')
 const {FriendsList,Users,Rooms,Ranks,Feedbacks}=require('../models');
+const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const nodemailer = require('nodemailer');
 const router=express.Router()
@@ -79,14 +80,16 @@ router.post('/changepassword', async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        if (oldpassword !== user.password) {
+		const passwordMatch = await bcrypt.compare(oldpassword, user.password);
+        if (!passwordMatch) {
             return res.status(401).json({ error: 'Current password is incorrect!' });
         }
         if (typeof password !== 'string' || password.length < 8) {
             return res.status(400).json({ error: 'Password is too short!' });
         }
+		 const hashedNewPassword = await bcrypt.hash(password, 10);
         const [numAffectedRows] = await Users.update(
-            { password: password },
+            { password: hashedNewPassword },
             { where: { idusers: userid } }
         );
         if (numAffectedRows === 1) {

@@ -1,5 +1,5 @@
 const express = require('express')
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const {Users,ResetPassword,VerificationRequest,Rooms,sequelize }=require('../models');
 const router=express.Router()
@@ -75,7 +75,8 @@ router.post('/login', async (req, res) => {
             if (!user) {
                 return res.status(404).json({ error: "User doesn't exist" });
             }
-            if (password===user.password) {
+			 const passwordMatch = await bcrypt.compare(password, user.password);
+            if (passwordMatch) {
                 let id=user.idusers;
                 let username=user.username;
                 const token = jwt.sign({ username }, 'your_secret_key');
@@ -221,10 +222,12 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Password should be at least 8 characters long' });
 }
     try {
+		const hashedPassword = await bcrypt.hash(password, 10);
+
         const user = await Users.create({
             email: email.toLowerCase(),
             username,
-            password,
+            password:hashedPassword,
             dateOfBirth,
             country,
             gender
@@ -344,8 +347,9 @@ router.post('/resetpassword/:token', async (req, res) => {
     if (resetPasswordRecord==null) {
       return res.status(404).json({ error: 'Invalid or expired token'});
     }
+	 const hashedNewPassword = await bcrypt.hash(password, 10);
     const affectedRows = await Users.update(
-      { password: password },
+      { password : hashedNewPassword },
       { where: { email: resetPasswordRecord.email } }
     );
     if (affectedRows > 0) {
