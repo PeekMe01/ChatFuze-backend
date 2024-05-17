@@ -155,6 +155,7 @@ router.post('/sendfeedback', async (req, res) => {
               ]
             }
           })
+          console.log('hihihiiubiibyyi')
           let rankname=rank.rankname;
 		  
 		  let ranknamepoints=await Ranks.findOne({
@@ -224,6 +225,7 @@ router.post('/sendfeedback', async (req, res) => {
         }
         return res.status(200).json({ roomCount, friendsCount, leaderboardnumber,rankname,user,users,maxRoomCountPerUser,userrankk,usersbyrankpoints});
     }catch (error) {
+        console.log(error)
         return res.status(500).json({ error: 'Internal server error' });
     }
     });
