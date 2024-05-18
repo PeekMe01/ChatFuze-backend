@@ -105,6 +105,13 @@ router.post('/changepassword', async (req, res) => {
 
 router.post('/updatebio', async (req, res) => {
     const { userid, bio } = req.body;
+
+    if(bio.length>255){
+        return res.status(500).json({ error: 'Bio too long' });
+    }
+
+    console.log(bio.length)
+
     try {
         const [numAffectedRows] = await Users.update(
             { bio: bio },
@@ -116,6 +123,7 @@ router.post('/updatebio', async (req, res) => {
             return res.json('Bio not updated');
         }
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
