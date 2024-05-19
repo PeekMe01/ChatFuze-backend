@@ -23,6 +23,14 @@ router.post('/updateusername', async (req, res) => {
     if (!userid || !username ) {
         return res.status(400).json({ error: 'User ID, old username, and new username are required' });
     }
+
+    if(username.length>16){
+        return res.status(400).json({ error: 'Username is too long' });
+    }
+    if(username.length<3){
+        return res.status(400).json({ error: 'Username is too short' });
+    }
+
     try {
         const user = await Users.findOne({ where: { idusers: userid } });
         if (!user) {
