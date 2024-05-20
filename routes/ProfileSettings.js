@@ -77,6 +77,34 @@ router.post('/updatecountry', async (req, res) => {
     }
 });
 
+router.post('/updateDateOfBirth', async (req, res) => {
+    const { userid, dob } = req.body;
+    if (!userid || !dob) {
+        return res.status(400).json({ error: 'User ID and date of birth are required' });
+    }
+    try {
+        const [numAffectedRows] = await Users.update(
+            { dateOfBirth: dob },
+            { 
+                where: { 
+                    idusers: userid, 
+                    verified: false 
+                } 
+            }
+        );
+        if (numAffectedRows === 1) {
+            return res.json('Date Of Birth updated successfully');
+        } else {
+            return res.json('date of birth not updated');
+        }
+    } catch (error) {
+        return res.status(500).json('Internal server error');
+    }
+});
+
+
+
+
 
 router.post('/changepassword', async (req, res) => {
     const { userid, oldpassword, password } = req.body;
