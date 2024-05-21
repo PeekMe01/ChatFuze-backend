@@ -1,7 +1,9 @@
 const express = require('express')
 const {Users,RoomRequests,Reports,ReportCategory,sequelize,Rooms }=require('../models');
 const { Op } = require('sequelize');
-const router=express.Router()
+
+module.exports = function(io) {
+  const router=express.Router()
 
 router.get('/', (req, res) => {
     res.send("Home server");
@@ -154,6 +156,7 @@ function wait(ms) {
                 ]
             }
         });
+         io.emit('roomCreated',room);
          return res.json(room)
         }
       }
@@ -171,5 +174,6 @@ function wait(ms) {
 
 
   })
-
-module.exports=router
+  return router;
+ }
+//  module.exports=router

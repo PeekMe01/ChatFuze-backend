@@ -3,26 +3,51 @@ const app = express();
 const cors = require("cors");
 const path = require('path');
 
+ const http = require('http');
+ const { Server } = require('socket.io');
+
+ const server = http.createServer(app);
+ const io = new Server(server,{
+        cors:{
+          origin:"http://localhost:3000", //change the origin
+          methods:["GET","POST"]
+        }
+ });
+
 app.use(express.json());
 app.use(cors());
 
 const db = require('./models');
 
-// const expoAppIdentifier = "chatfuze-frontend";
-// const restrictAccess = (req, res, next) => {
-//   const requestIdentifier = req.headers['x-expo-app'];
+const expoAppIdentifier = "chatfuze-frontend";
+const restrictAccess = (req, res, next) => {
+  const requestIdentifier = req.headers['x-expo-app'];
 
-//   if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
-//     next();
-//   } else {
-//     res.status(403).send('Access Forbidden');
-//   }
-// };
+  if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
+    next();
+  } else {
+    res.status(403).send('Access Forbidden');
+  }
+};
 
-// app.use(restrictAccess);
+app.use(restrictAccess);
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+io.on('connection', (socket) => {
+
+  socket.on('roomCreated', (data) => {
+      console.log(`/// Room created ///${data}`);
+      setTimeout(() => {
+        io.emit('roomClosed', data);
+      }, 10000);  //closed after 10 seconds
+  });
+  
+});
+
 
 
 // Routers
@@ -44,14 +69,14 @@ app.use('/feedbacks',feedbacksRouter);
 const reportsRouter=require('./routes/Reports')
 app.use('/reports',reportsRouter);
 
-const homeRouter=require('./routes/Home')
+const homeRouter=require('./routes/Home')(io)
 app.use('/home',homeRouter);
 
 app.get('/',(req,res)=>{
     return res.send("hello world");
 })
 db.sequelize.sync().then(() => {
-    app.listen(3001, () => {
+    server.listen(3001, () => {
         console.log("Server running on port 3001.");
     });
 });
