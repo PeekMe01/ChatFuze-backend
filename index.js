@@ -41,9 +41,7 @@ io.on('connection', (socket) => {
 
   socket.on('roomCreated', (data) => {
       console.log(`/// Room created ///${data}`);
-      setTimeout(() => {
-        io.emit('roomClosed', data);
-      }, 10000);  //closed after 10 seconds
+      
   });
   
 });

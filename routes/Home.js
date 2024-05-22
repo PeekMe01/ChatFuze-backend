@@ -57,7 +57,18 @@ function wait(ms) {
     });
     let matching=false;
     let attempts=10;
-    while(!matching){
+    let checkrequest
+    while(!matching ){ 
+       checkrequest=await RoomRequests.findByPk(requestid, {
+        include: {
+          model: Users,
+          as: 'users'
+        }
+      });
+      if(!checkrequest){
+        console.log("you joined a room")
+        return res.send("you joined a room")
+      }
         const otherRequests = await RoomRequests.findAll({
           where: {
               id: { [Op.ne]: requestid }
@@ -190,6 +201,16 @@ function wait(ms) {
         }
         //end results//
         if(countmatch==6){
+          checkrequest=await RoomRequests.findByPk(requestid, {
+        include: {
+          model: Users,
+          as: 'users'
+        }
+      });
+      if(!checkrequest){
+        console.log("you joined a room")
+        return res.send("you joined a room")
+      }
           matching=true;
           // return res.json('countmatch:'+countmatch);
                       //add room remove requests from backend and send the room info to the front end
@@ -221,6 +242,8 @@ function wait(ms) {
       }
       await wait(3000);
     }
+    // console.log("room stop")
+    // return res.send('room stoped')
   })
   //cancel the request
   router.delete('/RemoveRequest/:userid', async (req, res) => {
