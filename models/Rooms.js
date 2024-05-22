@@ -32,11 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       }
     }, {
-      tableName: 'rooms', // Specify the table name if it's different from the model name
-      timestamps: false, // Disable timestamps since we have createdAt and deletedAt columns
+      tableName: 'rooms', 
+      timestamps: false, 
       hooks: {
         beforeCreate: (room) => {
-          // Add 2 hours to the current time for createdAt
           room.createdAt = new Date(new Date().getTime() + 3 * 60 * 60 * 1000);
         }
       }

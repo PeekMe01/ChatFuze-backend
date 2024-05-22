@@ -70,9 +70,9 @@ function wait(ms) {
           for (const otherReq of otherRequests) {
           var countmatch=0;
           //check intrest country's
-          if(request.country!=="global"){
-              if(request.country===otherReq.users.country){
-                  if(otherReq.country!=="global"){
+          if(request.country !=="global"){
+              if(request.country === otherReq.users.country){
+                  if(otherReq.country !== "global"){
                         if(otherReq.country===request.users.country){
                           countmatch++;
                         }
@@ -81,8 +81,8 @@ function wait(ms) {
                   }
               }
           }else{
-                  if(otherReq.country!=="global"){
-                      if(otherReq.country===request.users.country){
+                  if(otherReq.country !== "global"){
+                      if(otherReq.country === request.users.country){
                         countmatch++;
                       }
                   }else{
@@ -162,11 +162,34 @@ function wait(ms) {
               countmatch++;
         }
         // check if players are joined together in a room for less than 1 day
-        // if(countmatch==5){
-
-        // }
+        if (countmatch == 5) {
+          const roomjoined = await Rooms.findAll({
+            where: {
+              [Op.or]: [
+                { userdid1: request.userdid, userdid2: otherReq.userdid },
+                { userdid1: otherReq.userdid, userdid2: request.userdid }
+              ]
+            }
+          });
+        
+          let roomLessThanOneDay = false;
+          const oneDayAgo =new Date(new Date().getTime() + 3 * 60 * 60 * 1000);
+          const oneDayInMillis = 24 * 60 * 60 * 1000; 
+          let differenceInMillis 
+          for (const roomj of roomjoined) {
+            differenceInMillis = oneDayAgo - roomj.createdAt ;
+            if (differenceInMillis > oneDayInMillis) { 
+              roomLessThanOneDay = true;
+              break;
+            }
+          }
+        
+          if (!roomLessThanOneDay) {
+            countmatch++;
+          }
+        }
         //end results//
-        if(countmatch==5){
+        if(countmatch==6){
           matching=true;
           // return res.json('countmatch:'+countmatch);
                       //add room remove requests from backend and send the room info to the front end
@@ -183,7 +206,7 @@ function wait(ms) {
             }
         });
          io.emit('roomCreated',room);
-         return res.json(room)
+         return res.json({room:room,countmatch:countmatch})
         }
       }
       attempts--;

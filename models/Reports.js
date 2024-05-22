@@ -45,8 +45,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW
       }
     }, {
-      tableName: 'reports', // Specify the table name if it's different from the model name
-      timestamps: false // Disable timestamps since we have createdAt and updatedAt columns
+      tableName: 'reports', 
+      timestamps: false 
     });
   
     return Reports;
