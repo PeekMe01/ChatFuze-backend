@@ -1,19 +1,17 @@
 const express = require('express')
-const {Users,RoomRequests,Reports,ReportCategory,sequelize,Rooms }=require('../models');
+const {Users,RoomRequests,Reports,ReportCategory,sequelize,Rooms,FriendsList }=require('../models');
 const { Op } = require('sequelize');
-
 module.exports = function(io) {
   const router=express.Router()
-
 router.get('/', (req, res) => {
     res.send("Home server");
 });
 
 router.post('/addrequest', async (req, res) => {
     try {
-      const { country, gender, minimumAge, maximumAge, intrests, userdid } = req.body;
+      const { country, gender, minimumAge, maximumAge, intrests, userid } = req.body;
   
-      if (!country || !gender || !minimumAge || !maximumAge || !intrests || !userdid) {
+      if (!country || !gender || !minimumAge || !maximumAge || !intrests || !userid) {
         return res.status(400).json({ error: 'All fields are required' });
       }
       
@@ -26,7 +24,7 @@ router.post('/addrequest', async (req, res) => {
         minimumAge,
         maximumAge,
         intrests,
-        userdid
+        userdid:userid
       });
       return res.json({ message: 'Request created successfully', data: newRequest });
     } catch (error) {
@@ -92,9 +90,20 @@ function wait(ms) {
                   }
           }
           // check intrest gender
-         if(request.gender===otherReq.users.gender && otherReq.gender===request.users.gender){
+          if(request.gender==="both" && otherReq.gender==="both"){
             countmatch++;
-         }
+          }else if(request.gender!=="both" && otherReq.gender==="both" ){
+            if(request.gender===otherReq.users.gender)
+              countmatch++;
+          }else if(request.gender==="both" && otherReq.gender!=="both" ){
+              if(otherReq.gender===request.users.gender)
+                countmatch++;
+          }
+         else if(request.gender!=="both" && otherReq.gender!=="both" ){
+            if(request.gender===otherReq.users.gender && otherReq.gender===request.users.gender){
+              countmatch++;
+          }
+        }
          //check intrest ages
          if((request.minimumAge <= calculateAge(otherReq.users.dateOfBirth) && 
             request.maximumAge >= calculateAge(otherReq.users.dateOfBirth)) 
@@ -139,8 +148,25 @@ function wait(ms) {
           if(otherIntrestCount>=seventyPercentOtherIntrests)
             countmatch++;
         }
-        //end results//
+        //if they are friend they will not join together
         if(countmatch==4){
+          const friends = await FriendsList.findOne({
+            where: {
+              [Op.or]: [
+                { usersid1: request.userdid, usersid2: otherReq.userdid },
+                { usersid1: otherReq.userdid, usersid2: request.userdid }
+              ]
+            }
+          });
+          if(!friends)
+              countmatch++;
+        }
+        // check if players are joined together in a room for less than 1 day
+        // if(countmatch==5){
+
+        // }
+        //end results//
+        if(countmatch==5){
           matching=true;
           // return res.json('countmatch:'+countmatch);
                       //add room remove requests from backend and send the room info to the front end
@@ -171,9 +197,27 @@ function wait(ms) {
       }
       await wait(3000);
     }
-
-
   })
+  //cancel the request
+  router.delete('/RemoveRequest/:userid', async (req, res) => {
+    try {
+      const userid = req.params.userid; 
+      const roomrequest = await RoomRequests.destroy({
+        where: {
+          userdid: userid
+        }
+      });
+      if (roomrequest) {
+        res.status(200).json({ success: true, message: 'Request removed successfully.' });
+      } else {
+        res.status(404).json({ success: false, message: 'Request not found.' });
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'An error occurred.', error: error.message });
+    }
+  });
+
+
   return router;
  }
 //  module.exports=router

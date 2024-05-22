@@ -19,18 +19,18 @@ app.use(cors());
 
 const db = require('./models');
 
-const expoAppIdentifier = "chatfuze-frontend";
-const restrictAccess = (req, res, next) => {
-  const requestIdentifier = req.headers['x-expo-app'];
+// const expoAppIdentifier = "chatfuze-frontend";
+// const restrictAccess = (req, res, next) => {
+//   const requestIdentifier = req.headers['x-expo-app'];
 
-  if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
-    next();
-  } else {
-    res.status(403).send('Access Forbidden');
-  }
-};
+//   if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
+//     next();
+//   } else {
+//     res.status(403).send('Access Forbidden');
+//   }
+// };
 
-app.use(restrictAccess);
+// app.use(restrictAccess);
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
