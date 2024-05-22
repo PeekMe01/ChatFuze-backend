@@ -211,12 +211,13 @@ function wait(ms) {
       }
       attempts--;
       if(attempts==0){
+        console.log("Count Match: "+countmatch)
         await RoomRequests.destroy({
           where: {
               userdid: request.userdid
           }
-      });      
-        return res.json('No Matching Found');
+      });
+        return res.status(420).json('No Matching Found');
       }
       await wait(3000);
     }
