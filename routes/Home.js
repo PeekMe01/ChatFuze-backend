@@ -264,6 +264,19 @@ function wait(ms) {
     }
   });
 
+  router.get('/GetServerTime', (req, res) => {
+    try {
+      const currentTime = new Date();
+      const adjustedTime = new Date(currentTime.getTime() + 3 * 60 * 60 * 1000);
+      const adjustedTimeISO = adjustedTime.toISOString();
+      console.log("Server Time: " + adjustedTimeISO);
+      res.status(200).json({ currentTime: adjustedTimeISO });
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ error: "Server error"})
+    }
+  });
+
 
   return router;
  }
