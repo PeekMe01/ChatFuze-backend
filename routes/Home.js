@@ -189,7 +189,7 @@ function wait(ms) {
           let differenceInMillis 
           for (const roomj of roomjoined) {
             differenceInMillis = oneDayAgo - roomj.createdAt ;
-            if (differenceInMillis > oneDayInMillis) { 
+            if (differenceInMillis < oneDayInMillis) { 
               roomLessThanOneDay = true;
               break;
             }
