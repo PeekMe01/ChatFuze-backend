@@ -45,27 +45,34 @@ function calculateTimeDifference(st, t) {
 
   return { minutes: minutesDifference, seconds: secondsDifference };
 }
-
+let rooms=[]
 io.on('connection', (socket) => {
 
   socket.on('roomCreated', (data) => {
+	  let found=false
+	   for(let i=0;i<rooms.length;i++){
+		   if(data.idmessages==rooms[i])
+			   found=true
+	   }
+		if(!found){
+			rooms.push(data.idmessages)
        console.log(`/// Room created ///${data}`);
        let st = new Date(data.createdAt);
-       let t = new Date(new Date().getTime() + (3 * 60 + 5) * 60 * 1000);  
-       //if you want to change the minutes change the number 5 to 1
+       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000);  
+ 
        
        const interval = setInterval(() => {
         const newSt = new Date(new Date(st).getTime() + 1000); 
         let newtime=calculateTimeDifference(newSt, t);
         st = newSt.toISOString(); 
-       
+       console.log(newtime)
+	   console.log(data.idmessages)
         io.emit('updateTime',{data,newtime});
         if (newtime.minutes === 0 && newtime.seconds === 0) {
             clearInterval(interval);
         }
     }, 1000);
-
-       return () => clearInterval(interval);
+		}
      
   });
   socket.on('roomDestroyed',(data)=>{
