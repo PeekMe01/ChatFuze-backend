@@ -338,12 +338,14 @@ module.exports = function (io) {
       let newRankPoints = Math.ceil(user.rankpoints - (user.rankpoints * 0.02));
       if (newRankPoints < 0)
         newRankPoints = 0
-      await user.update(
+      if (newRankPoints > 1000)
+        newRankPoints = 1000
+      await Users.update(
         { rankpoints: newRankPoints },
         { where: { idusers: idusers } }
       );
       let userrank = await Ranks.findOne({
-         attributes: ['idranks'],
+        attributes: ['idranks'],
         where: {
           [Op.and]: [
             { minimumpoints: { [Op.lte]: newRankPoints } },
@@ -354,11 +356,11 @@ module.exports = function (io) {
       let isTopTenPlayer = false
       const allUsers = await Users.findAll({
         order: [
-            ['rankpoints', 'DESC'],
-            ['createdAt', 'ASC']
+          ['rankpoints', 'DESC'],
+          ['createdAt', 'ASC']
         ],
         limit: 10
-    });
+      });
       for (const userr of allUsers) {
         if (userr.idusers == idusers) {
           isTopTenPlayer = true
@@ -366,18 +368,117 @@ module.exports = function (io) {
         }
       }
       if (isTopTenPlayer && newRankPoints >= 401) {
-        await user.update(
+        await Users.update(
           { rankid: 6 },
           { where: { idusers: idusers } }
         );
         return res.json({ Message: 'You Get a penaltie', success: true, userrank: 6 })
       }
-      await user.update(
+      await Users.update(
         { rankid: userrank.idranks },
         { where: { idusers: idusers } }
       );
       return res.json({ Message: 'You Get a penaltie', success: true, userrank: userrank })
     }
+  })
+
+  router.post('/rating', async (req, res) => {
+    const { idusers, ratingcount } = req.body;
+    const user = await Users.findByPk(idusers, {
+      include: {
+        model: Ranks,
+        as: 'ranks'
+      }
+    });
+    let newRankPoints;
+    if (ratingcount <= 5) {
+      switch (user.ranks.rankname) {
+        case 'Beginner':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.2)
+          break;
+        case 'Amateur':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.25)
+          break;
+        case 'Expert':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.5)
+          break;
+        case 'Master':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.75)
+          break;
+        case 'Champ':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.9)
+          break;
+        case 'Superstar':
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.9)
+          break;
+      }
+    } else {
+      switch (user.ranks.rankname) {
+        case 'Beginner':
+          newRankPoints = user.rankpoints + (ratingcount * 10)
+          break;
+        case 'Amateur':
+          newRankPoints = user.rankpoints + (ratingcount * 5)
+          break;
+        case 'Expert':
+          newRankPoints = user.rankpoints + (ratingcount * 1)
+          break;
+        case 'Master':
+          newRankPoints = user.rankpoints + (ratingcount * 0.5)
+          break;
+        case 'Champ':
+          newRankPoints = user.rankpoints + (ratingcount * 0.2)
+          break;
+        case 'Superstar':
+          newRankPoints = user.rankpoints + (ratingcount * 0.2)
+          break;
+      }
+    }
+    newRankPoints = Math.ceil(newRankPoints);
+    if (newRankPoints < 0)
+      newRankPoints = 0
+    if (newRankPoints > 1000)
+      newRankPoints = 1000
+
+    await Users.update(
+      { rankpoints: newRankPoints },
+      { where: { idusers: idusers } }
+    );
+    let userrank = await Ranks.findOne({
+      attributes: ['idranks'],
+      where: {
+        [Op.and]: [
+          { minimumpoints: { [Op.lte]: newRankPoints } },
+          { maximumpoints: { [Op.gte]: newRankPoints } }
+        ]
+      }
+    });
+    let isTopTenPlayer = false
+    const allUsers = await Users.findAll({
+      order: [
+        ['rankpoints', 'DESC'],
+        ['createdAt', 'ASC']
+      ],
+      limit: 10
+    });
+    for (const userr of allUsers) {
+      if (userr.idusers == idusers) {
+        isTopTenPlayer = true
+        break;
+      }
+    }
+    if (isTopTenPlayer && newRankPoints >= 401) {
+      await Users.update(
+        { rankid: 6 },
+        { where: { idusers: idusers } }
+      );
+      return res.json({ Message: 'Successfull Update Rank', success: true, userrank: 6 })
+    }
+    await Users.update(
+      { rankid: userrank.idranks },
+      { where: { idusers: idusers } }
+    );
+    return res.json({ Message: 'Successfull Update Rank', success: true, userrank: userrank })
   })
 
   return router;

@@ -77,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Users.associate = (models) => {
-        Users.belongsTo(models.Ranks, { foreignKey: 'rankid', as: 'rank' });
+        Users.belongsTo(models.Ranks, { foreignKey: 'rankid', as: 'ranks' });
     };
 
     return Users;
