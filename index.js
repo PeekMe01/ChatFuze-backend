@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const path = require('path');
-
+const axios = require('axios');
  const http = require('http');
  const { Server } = require('socket.io');
 
@@ -75,9 +75,15 @@ io.on('connection', (socket) => {
 		}
      
   });
-  socket.on('roomDestroyed',(data)=>{
-      socket.emit('roomDestroyed',data)
-  })
+  socket.on('roomDestroyed', async (data) => {
+    try {
+        const response = await axios.get(`http://localhost:3001/home/penaltie/${data.receiverId}`);
+        socket.emit('roomDestroyed', response.data);
+    } catch (error) {
+        console.error('Error making request:', error);
+    }
+});
+
   
 });
 
