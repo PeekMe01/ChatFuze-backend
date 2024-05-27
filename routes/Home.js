@@ -391,6 +391,9 @@ module.exports = function (io) {
       }
     });
     let newRankPoints;
+    console.log("ratingCount: " + ratingcount)
+    console.log("newRankPoints before: " + user.rankpoints)
+    
     if (ratingcount <= 5) {
       switch (user.ranks.rankname) {
         case 'Beginner':
@@ -434,7 +437,13 @@ module.exports = function (io) {
           break;
       }
     }
-    newRankPoints = Math.ceil(newRankPoints);
+    console.log("newRankPoints after: " + newRankPoints)
+    if(ratingcount<=5){
+      newRankPoints = Math.floor(newRankPoints);
+    }else{
+      newRankPoints = Math.ceil(newRankPoints);
+    }
+    
     if (newRankPoints < 0)
       newRankPoints = 0
     if (newRankPoints > 1000)
