@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
   socket.on('roomDestroyed', async (data) => {
     try {
         const response = await axios.get(`http://localhost:3001/home/penaltie/${data.receiverId}`);
-        socket.emit('roomDestroyed', response.data);
+        socket.emit('roomDestroyed', data);
     } catch (error) {
         console.error('Error making request:', error);
     }

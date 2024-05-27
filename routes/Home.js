@@ -367,7 +367,7 @@ module.exports = function (io) {
           break;
         }
       }
-      if (isTopTenPlayer && newRankPoints >= 401) {
+      if (isTopTenPlayer && newRankPoints >= 701) {
         await Users.update(
           { rankid: 6 },
           { where: { idusers: idusers } }
@@ -400,37 +400,37 @@ module.exports = function (io) {
           newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.25)
           break;
         case 'Expert':
-          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.5)
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.35)
           break;
         case 'Master':
-          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.75)
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.5)
           break;
         case 'Champ':
-          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.9)
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.6)
           break;
         case 'Superstar':
-          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.9)
+          newRankPoints = user.rankpoints - ((6 - ratingcount) * 0.6)
           break;
       }
     } else {
       switch (user.ranks.rankname) {
         case 'Beginner':
-          newRankPoints = user.rankpoints + (ratingcount * 10)
+          newRankPoints = user.rankpoints + (ratingcount * 1.2)
           break;
         case 'Amateur':
-          newRankPoints = user.rankpoints + (ratingcount * 5)
+          newRankPoints = user.rankpoints + (ratingcount * 1)
           break;
         case 'Expert':
-          newRankPoints = user.rankpoints + (ratingcount * 1)
+          newRankPoints = user.rankpoints + (ratingcount * 0.7)
           break;
         case 'Master':
           newRankPoints = user.rankpoints + (ratingcount * 0.5)
           break;
         case 'Champ':
-          newRankPoints = user.rankpoints + (ratingcount * 0.2)
+          newRankPoints = user.rankpoints + (ratingcount * 0.3)
           break;
         case 'Superstar':
-          newRankPoints = user.rankpoints + (ratingcount * 0.2)
+          newRankPoints = user.rankpoints + (ratingcount * 0.3)
           break;
       }
     }
