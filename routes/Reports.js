@@ -1,9 +1,9 @@
 const express = require('express')
-const {Users,Reports,ReportCategory,sequelize }=require('../models');
-const router=express.Router()
+const { Users, Reports, ReportCategory, sequelize } = require('../models');
+const router = express.Router()
 
 router.get('/', (req, res) => {
-    res.send("Reports server");
+  res.send("Reports server");
 });
 
 
@@ -53,7 +53,7 @@ router.post('/deletereport', async (req, res) => {
 });
 
 router.post('/submitreport', async (req, res) => {
-	
+
   try {
     const { reportedid, reporterid, message, categoryname } = req.body;
     if (!reportedid || !reporterid || !message || !categoryname) {
@@ -81,11 +81,11 @@ router.post('/submitreport', async (req, res) => {
     console.error('Error submitting report:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
- 
+
 });
 
 
 
 
 
-module.exports=router
+module.exports = router

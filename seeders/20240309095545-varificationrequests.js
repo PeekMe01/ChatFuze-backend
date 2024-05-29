@@ -5,7 +5,6 @@ module.exports = {
     await queryInterface.bulkInsert('verificationrequests', [
       { imagepath: 'path1', userid: 1 },
       { imagepath: 'path2', userid: 2 },
-      // Add 3 more verification requests here
     ], {});
   },
 

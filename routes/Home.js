@@ -195,7 +195,7 @@ module.exports = function (io) {
             }
           }
 
-          if (!roomLessThanOneDay) {
+          if (roomLessThanOneDay) {
             countmatch++;
           }
         }
@@ -393,7 +393,7 @@ module.exports = function (io) {
     let newRankPoints;
     console.log("ratingCount: " + ratingcount)
     console.log("newRankPoints before: " + user.rankpoints)
-    
+
     if (ratingcount <= 5) {
       switch (user.ranks.rankname) {
         case 'Beginner':
@@ -438,12 +438,12 @@ module.exports = function (io) {
       }
     }
     console.log("newRankPoints after: " + newRankPoints)
-    if(ratingcount<=5){
+    if (ratingcount <= 5) {
       newRankPoints = Math.floor(newRankPoints);
-    }else{
+    } else {
       newRankPoints = Math.ceil(newRankPoints);
     }
-    
+
     if (newRankPoints < 0)
       newRankPoints = 0
     if (newRankPoints > 1000)
@@ -476,7 +476,7 @@ module.exports = function (io) {
         break;
       }
     }
-    if (isTopTenPlayer && newRankPoints >= 401) {
+    if (isTopTenPlayer && newRankPoints >= 701) {
       await Users.update(
         { rankid: 6 },
         { where: { idusers: idusers } }

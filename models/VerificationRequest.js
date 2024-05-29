@@ -24,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
       },
     }, {
-      tableName: 'verificationrequests', // Specify the table name if it's different from the model name
-      timestamps: false // Disable timestamps since we have createdAt column
+      tableName: 'verificationrequests', 
+      timestamps: false 
     });
   
     return VerificationRequest;
