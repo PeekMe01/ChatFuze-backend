@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
 			rooms.push(data.idmessages)
        console.log(`/// Room created ///${data}`);
        let st = new Date(data.createdAt);
-       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000);  
+       let t = new Date(new Date().getTime() + 181 * 60 * 1000);
  
        
        const interval = setInterval(() => {
