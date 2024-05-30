@@ -194,7 +194,7 @@ module.exports = function (io) {
             }
           }
 
-          if (roomLessThanOneDay) {
+          if (!roomLessThanOneDay) {
             countmatch++;
           }
         }
