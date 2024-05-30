@@ -146,7 +146,6 @@ router.post('/updatebio', async (req, res) => {
         return res.status(500).json({ error: 'Bio too long' });
     }
 
-    console.log(bio.length)
 
     try {
         const [numAffectedRows] = await Users.update(
@@ -199,7 +198,6 @@ router.get('/getinsight/:idusers', async (req, res) => {
                 ]
             }
         })
-        console.log('hihihiiubiibyyi')
         let rankname = rank.rankname;
 
         let ranknamepoints = await Ranks.findOne({
@@ -278,7 +276,6 @@ router.get('/getinsight/:idusers', async (req, res) => {
 
 router.post('/facebooklink', async (req, res) => {
     const { facebooklink, imageurl, userid } = req.body;
-    console.log(req.body)
     if (!userid || !facebooklink || !imageurl) {
         return res.status(400).json({ error: 'Facebook link or image cannot be null or empty' });
     }
@@ -358,7 +355,6 @@ router.put('/updateStatus/:userId/:active', async (req, res) => {
 
 router.put('/updateProfilePicture', async (req, res) => {
     const { userid, profileURL } = req.body;
-    console.log(req.body)
     if (!userid, !profileURL) {
         return res.status(400).json({ error: 'userid cannot be null or empty' });
     }

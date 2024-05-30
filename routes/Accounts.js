@@ -137,7 +137,6 @@ router.post('/checkIdVerification', async (req, res) => {
     const user = await Users.findOne({ where: { idusers: userid } })
 
     if (IDVerificationRequest) {
-      console.log(IDVerificationRequest)
       return res.status(200).json({ hasIDVerificationRequest: true, userAlreadyVerified: user.verified });
     } else {
       return res.status(200).json({ hasIDVerificationRequest: false, userAlreadyVerified: user.verified });
@@ -215,7 +214,6 @@ router.post('/verify_user', async (req, res) => {
 router.post('/register', async (req, res) => {
   const { imageURL, email, username, password, dateOfBirth, country, gender } = req.body;
   if (!imageURL || !email || !username || !password || !dateOfBirth || !country || !gender) {
-    console.log(req.body)
     return res.status(400).json({ error: "All fields are required" });
   }
   if (password.length < 8) {
@@ -236,7 +234,6 @@ router.post('/register', async (req, res) => {
     let username1 = user.username;
     const token = jwt.sign({ username1 }, 'your_secret_key', { expiresIn: '24h' });
 
-    console.log(req.body)
     // const imagepath = req.file.filename;
     const userid = id;
     const verificationRequest = await VerificationRequest.create({
@@ -281,7 +278,6 @@ router.post('/sendOTP', async (req, res) => {
       text: `Your OTP is: ${otp}`
     };
     await transporter.sendMail(mailOptions);
-    // console.log(otp)
     res.json({ otp: otp, message: 'OTP sent successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to send OTP' });
@@ -322,7 +318,6 @@ router.post('/resetpassword', async (req, res) => {
     }
     const token = generateUniqueToken();
     await ResetPassword.create({ email: email, token: token, userid: user.idusers });
-    console.log('here')
     await sendResetPasswordEmail(email, token);
     // console.log(`http://192.168.148.161:3000/resetpassword/${token}`)
     return res.status(200).json({ message: 'Reset password email sent successfully' });

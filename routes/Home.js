@@ -66,8 +66,7 @@ module.exports = function (io) {
         }
       });
       if (!checkrequest) {
-        console.log("you joined a room")
-        return res.send("you joined a room")
+        return res.send("you joined a room or stop the request")
       }
       const otherRequests = await RoomRequests.findAll({
         where: {
@@ -208,8 +207,7 @@ module.exports = function (io) {
             }
           });
           if (!checkrequest) {
-            console.log("you joined a room")
-            return res.send("you joined a room")
+            return res.send("you joined a room or stop the request")
           }
           matching = true;
           // return res.json('countmatch:'+countmatch);
@@ -232,7 +230,6 @@ module.exports = function (io) {
       }
       attempts--;
       if (attempts == 0) {
-        console.log("Count Match: " + countmatch)
         await RoomRequests.destroy({
           where: {
             userdid: request.userdid
@@ -242,7 +239,6 @@ module.exports = function (io) {
       }
       await wait(3000);
     }
-    // console.log("room stop")
     // return res.send('room stoped')
   })
   //cancel the request
@@ -391,8 +387,7 @@ module.exports = function (io) {
       }
     });
     let newRankPoints;
-    console.log("ratingCount: " + ratingcount)
-    console.log("newRankPoints before: " + user.rankpoints)
+
 
     if (ratingcount <= 5) {
       switch (user.ranks.rankname) {
@@ -437,7 +432,6 @@ module.exports = function (io) {
           break;
       }
     }
-    console.log("newRankPoints after: " + newRankPoints)
     if (ratingcount <= 5) {
       newRankPoints = Math.floor(newRankPoints);
     } else {
