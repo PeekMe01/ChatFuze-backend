@@ -58,7 +58,8 @@ io.on('connection', (socket) => {
 			rooms.push(data.idmessages)
 
        let st = new Date(data.createdAt);
-       let t = new Date(new Date().getTime() + (3 * 60 + 3) * 60 * 1000);  
+      //  let t = new Date(new Date().getTime() + (3 * 60 + 3) * 60 * 1000);  
+       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000 - 50000);  
  
        
        const interval = setInterval(() => {
@@ -75,7 +76,12 @@ io.on('connection', (socket) => {
   });
   socket.on('roomDestroyed', async (data) => {
     try {
-        const response = await axios.get(`http://localhost:3001/home/penaltie/${data.receiverId}`);
+        console.log('inside room destroyed')
+        const response = await axios.get(`http://localhost:3001/home/penaltie/${data.receiverId}`, {
+          headers: {
+            'x-expo-app': 'chatfuze-frontend',
+          }
+        });
         socket.emit('roomDestroyed', data);
     } catch (error) {
         console.error('Error making request:', error);
