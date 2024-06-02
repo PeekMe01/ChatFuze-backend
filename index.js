@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
 
        let st = new Date(data.createdAt);
       //  let t = new Date(new Date().getTime() + (3 * 60 + 3) * 60 * 1000);  
-       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000 - 50000);  
+       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000 );  
  
        
        const interval = setInterval(() => {

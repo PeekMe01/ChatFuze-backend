@@ -190,31 +190,13 @@ router.get('/getinsight/:idusers', async (req, res) => {
             return res.status(400).json({ error: 'User not found' });
         }
         let rankpoints = user.rankpoints;
-        const rank = await Ranks.findOne({
-            where: {
-                [Op.and]: [
-                    { minimumpoints: { [Op.lte]: rankpoints } },
-                    { maximumpoints: { [Op.gte]: rankpoints } }
-                ]
-            }
-        })
+        const rank = await Ranks.findByPk(user.rankid) 
+           
         let rankname = rank.rankname;
 
-        let ranknamepoints = await Ranks.findOne({
-            where: {
-                rankname: rankname
-            }
-        })
 
         const usersbyrankpoints = await Users.findAll({
-            where: {
-                rankpoints: {
-                    [Op.and]: [
-                        { [Op.gte]: ranknamepoints.minimumpoints },
-                        { [Op.lte]: ranknamepoints.maximumpoints }
-                    ]
-                }
-            },
+            where: { rankid:user.rankid},
             order: [['rankpoints', 'DESC']]
         });
         let userrankk = 1;
