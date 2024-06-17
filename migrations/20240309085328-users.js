@@ -60,6 +60,10 @@ module.exports = {
         allowNull: true,
         defaultValue: true 
       },
+      isbanned:{
+        type:Sequelize.BOOLEAN,
+        defaultValue: false 
+      },
       imageurl:{
         type: Sequelize.STRING,
         allowNull: true,

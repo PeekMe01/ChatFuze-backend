@@ -36,6 +36,47 @@ router.get('/', (req, res) => {
   res.send("account server");
 });
 
+router.post('/ban_user', async (req, res) => {
+  try {
+    const { idusers } = req.body;
+    const user = await Users.findByPk(idusers);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await user.update({ isbanned: true });
+
+    if (user.email) {
+      const mailOptions = {
+        from: 'ralphdaher6@gmail.com',
+        to: user.email,
+        subject: 'ChatFuze Account Banned',
+        text: 'Your account has been banned due to multiple reports!'
+      };
+      await transporter.sendMail(mailOptions);
+    } else {
+      return res.status(400).json({ message: 'User email not found' });
+    }
+    return res.status(200).json({ message: 'Ban user completed successfully' });
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ message: 'An error occurred while banning the user' });
+  }
+});
+
+router.post('/removeprofilepicture', async (req, res) => {
+  try {
+    const { idusers } = req.body;
+    const user = await Users.findByPk(idusers);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await user.update({imageurl:null})
+    return res.status(200).json({ message: 'Profile Picture Removed Successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'An error occurred while removing profile picture' });
+  }
+});
+
 
 router.post('/validate_username', async (req, res) => {
   try {
@@ -178,14 +219,8 @@ router.post('/verify_user', async (req, res) => {
       { where: { idusers: userid } }
     );
     if (numAffectedRows === 1) {
-
-      // const filePath = path.join("uploads", imagepath);
-      // fs.unlinkSync(filePath);
-      // Find the user by ID
       const verificationRequest = await VerificationRequest.findByPk(idverificationrequests);
-
       const user = await Users.findOne({ where: { idusers: userid } });
-
       const mailOptions = {
         from: 'ralphdaher6@gmail.com',
         to: user.email,
@@ -205,7 +240,6 @@ router.post('/verify_user', async (req, res) => {
       return res.json('User has not been updated.');
     }
   } catch (error) {
-    console.log(error)
     return res.status(500).json({ error: 'Internal server error' });
   }
 
@@ -304,7 +338,6 @@ async function sendResetPasswordEmail(email, token) {
   }
 
 }
-
 
 router.post('/resetpassword', async (req, res) => {
   try {

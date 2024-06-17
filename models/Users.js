@@ -63,6 +63,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             defaultValue: true 
           },
+          isbanned:{
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false 
+          },
         rankid: {
             type: DataTypes.INTEGER,
             allowNull: false,
