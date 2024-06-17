@@ -11,6 +11,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      tenmessage: {
+        type: Sequelize.JSON,
+        allowNull: true,
+      },
       reportcategorieid: {
         type: Sequelize.INTEGER,
         allowNull: false,

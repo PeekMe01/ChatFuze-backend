@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      tenmessage: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
       reportcategorieid: {
         type: DataTypes.INTEGER,
         allowNull: false,

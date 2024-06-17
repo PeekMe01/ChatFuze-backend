@@ -55,7 +55,7 @@ router.post('/deletereport', async (req, res) => {
 router.post('/submitreport', async (req, res) => {
 
   try {
-    const { reportedid, reporterid, message, categoryname } = req.body;
+    const { reportedid, reporterid, message, categoryname,tenmessage } = req.body;
     if (!reportedid || !reporterid || !message || !categoryname) {
       return res.status(400).json({ error: 'All fields are required' });
     }
@@ -69,6 +69,7 @@ router.post('/submitreport', async (req, res) => {
     }
     const newReport = await Reports.create({
       message: message,
+      tenmessage:tenmessage,
       reportcategorieid: reportCategory.idreportcategories,
       reporterid: reporterid,
       reportedid: reportedid
