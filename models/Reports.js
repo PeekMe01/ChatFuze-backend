@@ -38,6 +38,12 @@ module.exports = (sequelize, DataTypes) => {
           key: 'idusers'
         }
       },
+      status: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        defaultValue: 'pending'
+      }
+      ,
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

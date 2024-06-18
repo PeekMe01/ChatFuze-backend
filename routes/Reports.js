@@ -52,6 +52,32 @@ router.post('/deletereport', async (req, res) => {
   }
 });
 
+router.post('/handleReport', async (req, res) => {
+  try {
+    const { id, newStatus } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Report ID is required' });
+    }
+
+    if (!id) {
+      return res.status(400).json({ error: 'Report new status is required' });
+    }
+
+    const report = await Reports.findByPk(id);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    await report.update({ status: newStatus });
+
+    return res.json({ message: `Report has been taken care of` });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post('/submitreport', async (req, res) => {
 
   try {

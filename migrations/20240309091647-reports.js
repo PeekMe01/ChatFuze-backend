@@ -39,6 +39,11 @@ module.exports = {
           key: 'idusers'
         }
       },
+      status: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        defaultValue: 'pending'
+      },
       createdAt: {
         type: Sequelize.DATE,
       },
