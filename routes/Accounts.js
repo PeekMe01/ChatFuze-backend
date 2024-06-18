@@ -38,7 +38,10 @@ router.get('/', (req, res) => {
 
 router.post('/ban_user', async (req, res) => {
   try {
-    const { idusers } = req.body;
+    const { idusers, reason } = req.body;
+    if(!reason){
+      return res.status(404).json({ message: 'Please provide a reason' });
+    }
     const user = await Users.findByPk(idusers);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -50,16 +53,46 @@ router.post('/ban_user', async (req, res) => {
         from: 'ralphdaher6@gmail.com',
         to: user.email,
         subject: 'ChatFuze Account Banned',
-        text: 'Your account has been banned due to multiple reports!'
+        text: reason
       };
       await transporter.sendMail(mailOptions);
     } else {
       return res.status(400).json({ message: 'User email not found' });
     }
-    return res.status(200).json({ message: 'Ban user completed successfully' });
+    return res.status(200).json({ message: 'User has been successfully banned' });
   } catch (error) {
     console.error(error)
     return res.status(500).json({ message: 'An error occurred while banning the user' });
+  }
+});
+
+router.post('/unban_user', async (req, res) => {
+  try {
+    const { idusers, reason } = req.body;
+    if(!reason){
+      return res.status(404).json({ message: 'Please provide a reason' });
+    }
+    const user = await Users.findByPk(idusers);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await user.update({ isbanned: false });
+
+    if (user.email) {
+      const mailOptions = {
+        from: 'ralphdaher6@gmail.com',
+        to: user.email,
+        subject: 'ChatFuze Account Unbanned',
+        text: reason
+      };
+      await transporter.sendMail(mailOptions);
+    } else {
+      return res.status(400).json({ message: 'User email not found' });
+    }
+    return res.status(200).json({ message: 'User has been successfully unbanned' });
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ message: 'An error occurred while unbanning the user' });
   }
 });
 
@@ -71,7 +104,14 @@ router.post('/removeprofilepicture', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     await user.update({imageurl:null})
-    return res.status(200).json({ message: 'Profile Picture Removed Successfully' });
+    const mailOptions = {
+      from: 'ralphdaher6@gmail.com',
+      to: user.email,
+      subject: 'ChatFuze Profile Picture Removed',
+      text: 'After careful review done by the admins, we decided to remove your profile picture because it was deemed as inappropriate.'
+    };
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({ message: 'Profile Picture has been removed successfully' });
   } catch (error) {
     return res.status(500).json({ message: 'An error occurred while removing profile picture' });
   }
