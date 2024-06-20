@@ -49,23 +49,16 @@ module.exports = function (io) {
   }
   router.get('/matching/:requestid', async (req, res) => {
     const { requestid } = req.params;
-    let request = await RoomRequests.findByPk(requestid, {
-      include: {
-        model: Users,
-        as: 'users'
-      }
-    });
-    let matching = false;
+    let request;
     let attempts = 10;
-    let checkrequest
-    while (!matching) {
-      checkrequest = await RoomRequests.findByPk(requestid, {
+    while (true) {
+      request = await RoomRequests.findByPk(requestid, {
         include: {
           model: Users,
           as: 'users'
         }
       });
-      if (!checkrequest) {
+      if (!request) {
         return res.send("you joined a room or stop the request")
       }
       const otherRequests = await RoomRequests.findAll({
@@ -99,6 +92,7 @@ module.exports = function (io) {
             countmatch++;
           }
         }
+
         // check intrest gender
         if (request.gender === "both" && otherReq.gender === "both") {
           countmatch++;
@@ -114,6 +108,7 @@ module.exports = function (io) {
             countmatch++;
           }
         }
+
         //check intrest ages
         if ((request.minimumAge <= calculateAge(otherReq.users.dateOfBirth) &&
           request.maximumAge >= calculateAge(otherReq.users.dateOfBirth))
@@ -123,6 +118,7 @@ module.exports = function (io) {
         ) {
           countmatch++;
         }
+
         //check intrest intrestsss
         let intrests = request.intrests;
         let seventyPercentMyIntrest = Math.floor(intrests.length * 0.7);
@@ -158,6 +154,7 @@ module.exports = function (io) {
           if (otherIntrestCount >= seventyPercentOtherIntrests)
             countmatch++;
         }
+
         //if they are friend they will not join together
         if (countmatch == 4) {
           const friends = await FriendsList.findOne({
@@ -171,6 +168,7 @@ module.exports = function (io) {
           if (!friends)
             countmatch++;
         }
+
         // check if players are joined together in a room for less than 1 day
         if (countmatch == 5) {
           const roomjoined = await Rooms.findAll({
@@ -198,18 +196,31 @@ module.exports = function (io) {
             countmatch++;
           }
         }
+        
+         //enter based on rank
+         if (countmatch == 6) {
+          if (attempts == 1) {
+            countmatch++;
+          } else {
+            if ((request.users.rankid == 6 || request.users.rankid == 5) && request.users.rankid == otherReq.users.rankid)
+              countmatch++
+            else if ((otherReq.users.rankid == 6 || otherReq.users.rankid == 5) && otherReq.users.rankid == request.users.rankid)
+              countmatch++
+            else if (request.users.rankid == otherReq.users.rankid)
+              countmatch++;
+          }
+        }
         //end results//
-        if (countmatch == 6) {
-          checkrequest = await RoomRequests.findByPk(requestid, {
+        if (countmatch == 7) {
+          request = await RoomRequests.findByPk(requestid, {
             include: {
               model: Users,
               as: 'users'
             }
           });
-          if (!checkrequest) {
+          if (!request) {
             return res.send("you joined a room or stop the request")
           }
-          matching = true;
           // return res.json('countmatch:'+countmatch);
           //add room remove requests from backend and send the room info to the front end
           const room = await Rooms.create({
@@ -239,7 +250,6 @@ module.exports = function (io) {
       }
       await wait(3000);
     }
-    // return res.send('room stoped')
   })
   //cancel the request
   router.delete('/RemoveRequest/:userid', async (req, res) => {
