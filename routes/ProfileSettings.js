@@ -13,6 +13,17 @@ const pusher = new Pusher({
     cluster: "ap2",
     useTLS: true
 });
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'ralphdaher6@gmail.com', // Your Gmail email address
+    pass: 'bxgo qxdn rwts jwdb' // Your Gmail password
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
 router.get('/', (req, res) => {
     res.send("settings server");
 });
@@ -103,7 +114,35 @@ router.post('/updateDateOfBirth', async (req, res) => {
 });
 
 
-
+router.post('/updatepassword', async (req, res) => {
+    const { userid, email,password } = req.body;
+    if (!userid || !password) {
+        return res.status(400).json({ error: 'User ID and password are required' });
+    }
+	 if (typeof password !== 'string' || password.length < 8) {
+            return res.status(400).json({ error: 'Password is too short!' });
+        }
+    try {
+        const [numAffectedRows] = await Users.update(
+            { password: await bcrypt.hash(password,10) },
+            { where: { idusers: userid } }
+        );
+        if (numAffectedRows === 1) {
+			 const mailOptions = {
+        from: 'ralphdaher6@gmail.com',
+        to: email,
+        subject: 'ChatFuze Edited password',
+         html: `Your ChatFuze account password has been modified to: <b><u>${password}</u></b>`,
+      };
+      await transporter.sendMail(mailOptions);
+            return res.json('password updated successfully');
+        } else {
+            return res.json('password not updated');
+        }
+    } catch (error) {
+        return res.status(500).json('Internal server error');
+    }
+});
 
 
 router.post('/changepassword', async (req, res) => {
