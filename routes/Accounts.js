@@ -46,7 +46,7 @@ router.post('/ban_user', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    await user.update({ isbanned: true });
+    await user.update({ isbanned: true, rankpoints: 0, rankid: 1, imageurl: 'https://firebasestorage.googleapis.com/v0/b/chatfuze-e6658.appspot.com/o/ChatFuze%2FProfile%2Fbanned_user_pfp.png?alt=media&token=d56fc241-27f5-4e66-a403-a6eef744b350' });
 
     if (user.email) {
       const mailOptions = {
@@ -76,7 +76,7 @@ router.post('/unban_user', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    await user.update({ isbanned: false });
+    await user.update({ isbanned: false, imageurl: null });
 
     if (user.email) {
       const mailOptions = {

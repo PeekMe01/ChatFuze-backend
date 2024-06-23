@@ -229,14 +229,15 @@ router.get('/getinsight/:idusers', async (req, res) => {
             return res.status(400).json({ error: 'User not found' });
         }
         let rankpoints = user.rankpoints;
+		
+		//get the rankname of the user
         const rank = await Ranks.findByPk(user.rankid) 
-           
         let rankname = rank.rankname;
 
 
         const usersbyrankpoints = await Users.findAll({
             where: { rankid:user.rankid},
-            order: [['rankpoints', 'DESC']]
+            order: [['rankpoints', 'DESC'],['createdAt', 'ASC']]
         });
         let userrankk = 1;
         for (let user of usersbyrankpoints) {
@@ -246,7 +247,7 @@ router.get('/getinsight/:idusers', async (req, res) => {
                 userrankk++;
             }
         }
-        /////////////////////////////
+        //get the room count of the user
         const roomCount = await Rooms.count({
             where: {
                 [Op.or]: [
@@ -255,6 +256,7 @@ router.get('/getinsight/:idusers', async (req, res) => {
                 ]
             }
         });
+		//get the friendsCount of the user
         const friendsCount = await FriendsList.count({
             where: {
                 [Op.or]: [
@@ -264,7 +266,7 @@ router.get('/getinsight/:idusers', async (req, res) => {
             }
         });
         const users = await Users.findAll({
-            order: [['rankpoints', 'DESC']]
+            order: [['rankpoints', 'DESC'],['createdAt','ASC']]
         });
         let usersRoomCounts = [];
         for (let i = 0; i < users.length; i++) {

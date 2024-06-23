@@ -14,7 +14,7 @@ router.get('/global', async (req, res) => {
     const users = await Users.findAll({
       order: [
         ['rankpoints', 'DESC'],
-        ['updatedAt', 'ASC']
+        ['createdAt', 'ASC']
       ]
     });
     return res.json(users);
@@ -35,7 +35,7 @@ router.get('/local/:idusers', async (req, res) => {
       where: { country: user.country },
       order: [
         ['rankpoints', 'DESC'],
-        ['updatedAt', 'ASC']
+        ['createdAt', 'ASC']
       ]
     });
     return res.json(localUsers);
@@ -60,7 +60,7 @@ router.get('/friends/:idusers', async (req, res) => {
       },
       order: [
         ['rankpoints', 'DESC'],
-        ['updatedAt', 'ASC']
+        ['createdAt', 'ASC']
       ]
     });
     res.json(allRanksFriendsUser);
