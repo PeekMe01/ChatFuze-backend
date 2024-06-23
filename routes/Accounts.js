@@ -53,7 +53,7 @@ router.post('/ban_user', async (req, res) => {
         from: 'ralphdaher6@gmail.com',
         to: user.email,
         subject: 'ChatFuze Account Banned',
-        text: reason
+        text: "Dear user,\nWe have decided to ban your account for the following reason: " + reason
       };
       await transporter.sendMail(mailOptions);
     } else {
@@ -83,7 +83,7 @@ router.post('/unban_user', async (req, res) => {
         from: 'ralphdaher6@gmail.com',
         to: user.email,
         subject: 'ChatFuze Account Unbanned',
-        text: reason
+        text: "Dear user,\nWe have decided to unban your account for the following reason: " + reason
       };
       await transporter.sendMail(mailOptions);
     } else {
