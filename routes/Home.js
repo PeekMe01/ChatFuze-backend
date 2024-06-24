@@ -347,7 +347,7 @@ module.exports = function (io) {
       return res.status(400).json({ error: 'All fields are required' });
     } else {
       const user = await Users.findByPk(idusers)
-      let newRankPoints = Math.ceil(user.rankpoints - (user.rankpoints * 0.02));
+      let newRankPoints = user.rankpoints - Math.ceil(user.rankpoints * 0.02);
       if (newRankPoints < 0)
         newRankPoints = 0
       await Users.update(
