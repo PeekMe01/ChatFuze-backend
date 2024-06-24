@@ -19,18 +19,18 @@ app.use(cors());
 
 const db = require('./models');
 
-// const expoAppIdentifier = "chatfuze-frontend";
-// const restrictAccess = (req, res, next) => {
-//   const requestIdentifier = req.headers['x-expo-app'];
+const expoAppIdentifier = "chatfuze-frontend";
+const restrictAccess = (req, res, next) => {
+  const requestIdentifier = req.headers['x-expo-app'];
 
-//   if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
-//     next();
-//   } else {
-//     res.status(403).send('Access Forbidden');
-//   }
-// };
+  if (requestIdentifier && requestIdentifier === expoAppIdentifier) {
+    next();
+  } else {
+    res.status(403).send('Access Forbidden');
+  }
+};
 
-// app.use(restrictAccess);
+app.use(restrictAccess);
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
 
        let st = new Date(data.createdAt);
       //  let t = new Date(new Date().getTime() + (3 * 60 + 3) * 60 * 1000);  
-       let t = new Date(new Date().getTime() + (3 * 60 + 1) * 60 * 1000 );  
+       let t = new Date(new Date().getTime() + (3 * 60 + 7) * 60 * 1000 );
  
        
        const interval = setInterval(() => {
